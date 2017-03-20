@@ -60,7 +60,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Operations\GoCoverReportOperation.cs" />
+    <Compile Include="Operations\GoProfileAnnotatedSourceReportOperation.cs" />
+    <Compile Include="Operations\GoProfileGraphReportOperation.cs" />
+    <Compile Include="Operations\GoProfileReportOperationBase.cs" />
+    <Compile Include="Operations\GoReportOperationBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SuggestionProviders\ContentionProfileSuggestionProvider.cs" />
+    <Compile Include="SuggestionProviders\MemoryProfileSuggestionProvider.cs" />
+    <Compile Include="SuggestionProviders\ProfileGranularitySuggestionProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
