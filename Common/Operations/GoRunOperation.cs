@@ -1,0 +1,78 @@
+﻿#if BuildMaster
+using Inedo.BuildMaster.Extensibility;
+using Inedo.BuildMaster.Extensibility.Operations;
+using Inedo.BuildMaster.Web.Controls.Plans;
+#elif Otter
+using Inedo.Otter.Extensibility;
+using Inedo.Otter.Extensibility.Operations;
+using Inedo.Otter.Web.Controls.Plans;
+#endif
+using Inedo.Documentation;
+using Inedo.IO;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Inedo.Agents;
+
+namespace Inedo.Extensions.Golang.Operations
+{
+    [DisplayName("Run Go program from source code")]
+    [ScriptNamespace("Golang")]
+    [ScriptAlias("Go-Run")]
+    [Tag("go")]
+    public sealed class GoRunOperation : GoBuildOperationBase
+    {
+        [DisplayName("From directory")]
+        [PlaceholderText("$WorkingDirectory")]
+        [ScriptAlias("From")]
+        [FilePathEditor]
+        public string SourceDirectory { get; set; }
+
+        [DisplayName("Include files")]
+        [Description(CommonDescriptions.MaskingHelp)]
+        [DefaultValue("*.go")]
+        [ScriptAlias("Include")]
+        public IEnumerable<string> Includes { get; set; }
+        [DisplayName("Exclude files")]
+        [Description(CommonDescriptions.MaskingHelp)]
+        [ScriptAlias("Exclude")]
+        public IEnumerable<string> Excludes { get; set; }
+
+        [DisplayName("Arguments")]
+        [ScriptAlias("Arguments")]
+        public string Arguments { get; set; }
+
+        public override async Task ExecuteAsync(IOperationExecutionContext context)
+        {
+            var fileOps = await context.Agent.GetServiceAsync<Inedo.Agents.IFileOperationsExecuter>().ConfigureAwait(false);
+            var args = new List<string>();
+            var directory = context.ResolvePath(this.SourceDirectory);
+            foreach (var info in await fileOps.GetFileSystemInfosAsync(directory, new MaskingContext(this.Includes, this.Excludes)).ConfigureAwait(false))
+            {
+                // go run assumes the first non-*.go argument is the start of the program arguments.
+                if (info is SlimFileInfo && info.Name.EndsWith(".go"))
+                {
+                    args.Add(info.FullName);
+                }
+            }
+
+            await this.ExecuteCommandLineAsync(context, "run", this.BuildArgs.Concat(args)).ConfigureAwait(false);
+        }
+
+        protected override ExtendedRichDescription GetDescription(IOperationConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task CommandLineSetupAsync(IOperationExecutionContext context, RemoteProcessStartInfo info)
+        {
+            if (!string.IsNullOrEmpty(this.Arguments))
+            {
+                info.Arguments += " " + this.Arguments;
+            }
+            return base.CommandLineSetupAsync(context, info);
+        }
+    }
+}
