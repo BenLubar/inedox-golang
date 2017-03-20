@@ -9,10 +9,15 @@
     <Import_RootNamespace>Inedo.Extensions.Golang</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Operations\GoBuildOperationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoOperationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\BuildModeSuggestionProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\CompilerSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\ConstantSuggestionProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\Go386SuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoArchSuggestionProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoArmSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoOSSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VariableFunctions\GoEnvVariableFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VariableFunctions\GoListVariableFunction.cs" />
