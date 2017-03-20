@@ -15,5 +15,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoArchSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoOSSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VariableFunctions\GoEnvVariableFunction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VariableFunctions\GoListVariableFunction.cs" />
   </ItemGroup>
 </Project>
