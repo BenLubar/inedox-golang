@@ -30,7 +30,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
     public sealed class GoListVariableFunction : VectorVariableFunction
     {
         [VariableFunctionParameter(0)]
-        [Description("Package pattern, like encoding/... or std.")]
+        [Description("Package pattern, like encoding/... or golang.org/x/crypto/bcrypt.")]
         public string Pattern { get; set; }
 
         [VariableFunctionParameter(1, Optional = true)]

@@ -7,14 +7,13 @@ using Inedo.Otter.Extensibility;
 using Inedo.Otter.Extensibility.Operations;
 using Inedo.Otter.Web.Controls.Plans;
 #endif
+using Inedo.Agents;
 using Inedo.Documentation;
 using Inedo.IO;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Inedo.Agents;
 
 namespace Inedo.Extensions.Golang.Operations
 {
@@ -63,7 +62,10 @@ namespace Inedo.Extensions.Golang.Operations
 
         protected override ExtendedRichDescription GetDescription(IOperationConfiguration config)
         {
-            throw new NotImplementedException();
+            return new ExtendedRichDescription(
+                new RichDescription("Compile and run Go files ", new MaskHilite(config[nameof(Includes)], config[nameof(Excludes)])),
+                new RichDescription(this.Arguments)
+            );
         }
 
         protected override Task CommandLineSetupAsync(IOperationExecutionContext context, RemoteProcessStartInfo info)
