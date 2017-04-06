@@ -280,6 +280,7 @@ namespace Inedo.Extensions.Golang.Operations
                     }
                     else
                     {
+                        await fileOps.CreateDirectoryAsync(dest).ConfigureAwait(false);
                         await this.ExecuteCommandLineAsync(context, new RemoteProcessStartInfo
                         {
                             FileName = "tar",
