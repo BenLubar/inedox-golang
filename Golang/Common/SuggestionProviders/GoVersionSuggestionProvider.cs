@@ -17,8 +17,8 @@ namespace Inedo.Extensions.Golang.SuggestionProviders
     {
         public async Task<IEnumerable<string>> GetSuggestionsAsync(IComponentConfiguration config)
         {
-            await GoOperationBase.PopulateGoDownloadsAsync(null, CancellationToken.None).ConfigureAwait(false);
-            return new[] { "latest" }.Concat(GoOperationBase.GoDownloads.
+            var downloads = await GoOperationBase.PopulateGoDownloadsAsync(null, CancellationToken.None).ConfigureAwait(false);
+            return new[] { "latest" }.Concat(downloads.
                 Where(v => v.StartsWith("go") && v.EndsWith(".windows-amd64.zip")).
                 Select(v => v.Substring(0, v.Length - ".windows-amd64.zip".Length).Substring("go".Length)).Reverse());
         }

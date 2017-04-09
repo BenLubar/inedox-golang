@@ -215,7 +215,7 @@ namespace Inedo.Extensions.Golang.Operations
 
             await fileOps.CreateDirectoryAsync(fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions")).ConfigureAwait(false);
 
-            await PopulateGoDownloadsAsync(logger, context.CancellationToken).ConfigureAwait(false);
+            var downloads = await PopulateGoDownloadsAsync(logger, context.CancellationToken).ConfigureAwait(false);
 
             var suffix = ".windows-amd64.zip";
             var useZip = true;
@@ -227,7 +227,7 @@ namespace Inedo.Extensions.Golang.Operations
 
             if (string.Equals(version, "latest", StringComparison.OrdinalIgnoreCase))
             {
-                version = GoDownloads.Where(i => i.StartsWith("go") && i.EndsWith(suffix)).Select(i => i.Substring(0, i.Length - suffix.Length).Substring("go".Length)).OrderByDescending(i =>
+                version = downloads.Where(i => i.StartsWith("go") && i.EndsWith(suffix)).Select(i => i.Substring(0, i.Length - suffix.Length).Substring("go".Length)).OrderByDescending(i =>
                 {
                     Version v;
                     if (Version.TryParse(i, out v))
@@ -247,7 +247,7 @@ namespace Inedo.Extensions.Golang.Operations
             }
 
             var fileName = $"go{version}{suffix}";
-            if (!GoDownloads.Contains(fileName))
+            if (!downloads.Contains(fileName))
             {
                 logger?.LogError($"Could not find Go version {version} for download.");
                 return Tuple.Create((string)null, version);
@@ -305,18 +305,20 @@ namespace Inedo.Extensions.Golang.Operations
         }
 
         private static readonly SemaphoreSlim GoDownloadsSemaphore = new SemaphoreSlim(1);
-        internal static readonly List<string> GoDownloads = new List<string>();
+        private static volatile List<string> GoDownloadsCache = null;
 
-        internal static async Task PopulateGoDownloadsAsync(ILogger logger, CancellationToken cancellationToken)
+        internal static async Task<IReadOnlyList<string>> PopulateGoDownloadsAsync(ILogger logger, CancellationToken cancellationToken)
         {
             await GoDownloadsSemaphore.WaitAsync(cancellationToken);
-            if (GoDownloads.Any())
-            {
-                GoDownloadsSemaphore.Release();
-                return;
-            }
+            var downloads = GoDownloadsCache;
             try
             {
+                if (downloads != null)
+                {
+                    logger?.LogDebug("Using cached Go version information...");
+                    return downloads;
+                }
+
                 logger?.LogDebug("Retrieving Go version information...");
                 var items = new List<string>();
                 using (var client = new HttpClient())
@@ -347,12 +349,22 @@ namespace Inedo.Extensions.Golang.Operations
                         }
                     }
                 }
-                GoDownloads.AddRange(items);
+                GoDownloadsCache = items;
+                var _ = ClearGoDownloadsAsync();
+                return items;
             }
             finally
             {
                 GoDownloadsSemaphore.Release();
             }
+        }
+
+        private static async Task ClearGoDownloadsAsync()
+        {
+            await Task.Delay(TimeSpan.FromHours(1)).ConfigureAwait(false);
+            await GoDownloadsSemaphore.WaitAsync();
+            GoDownloadsCache = null;
+            GoDownloadsSemaphore.Release();
         }
 
         private struct StorageObjectList
