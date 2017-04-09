@@ -29,6 +29,8 @@ using System.Threading;
 
 namespace Inedo.Extensions.Golang.Operations
 {
+    [ScriptNamespace("Golang")]
+    [Tag("go")]
     public abstract class GoOperationBase : ExecuteOperation
     {
         [DisplayName("Path to Go command")]
@@ -41,6 +43,7 @@ namespace Inedo.Extensions.Golang.Operations
         [Category("Low-Level")]
         [ScriptAlias("GoVersion")]
         [DefaultValue("latest")]
+        [SuggestibleValue(typeof(GoVersionSuggestionProvider))]
         public string GoVersion { get; set; } = "latest";
 
         [DisplayName("Operating system")]
@@ -139,7 +142,9 @@ namespace Inedo.Extensions.Golang.Operations
         {
             if (string.IsNullOrEmpty(this.GoExecutableName))
             {
-                await this.PrepareGoAsync(context).ConfigureAwait(false);
+                var result = await PrepareGoAsync(this, context, this.GoVersion).ConfigureAwait(false);
+                this.GoExecutableName = result.Item1;
+                this.GoVersion = result.Item2;
             }
             var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>().ConfigureAwait(false);
             await fileOps.CreateDirectoryAsync(context.WorkingDirectory).ConfigureAwait(false);
@@ -178,7 +183,6 @@ namespace Inedo.Extensions.Golang.Operations
             await this.CommandLineSetupAsync(context, info).ConfigureAwait(false);
 
             this.LogInformation($"Executing command: go {info.Arguments}");
-
             using (var process = processExecuter.CreateProcess(info))
             {
                 process.OutputDataReceived += (sender, e) => this.CommandLineOutput(context, e.Data);
@@ -200,19 +204,18 @@ namespace Inedo.Extensions.Golang.Operations
             }
         }
 
-        private async Task PrepareGoAsync(IOperationExecutionContext context)
+        internal static async Task<Tuple<string, string>> PrepareGoAsync(ILogger logger, IOperationExecutionContext context, string version)
         {
             var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>().ConfigureAwait(false);
-            var dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + this.GoVersion);
+            var dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + version);
             if (await fileOps.DirectoryExistsAsync(dest).ConfigureAwait(false))
             {
-                this.GoExecutableName = fileOps.CombinePath(dest, "bin", "go");
-                return;
+                return Tuple.Create(fileOps.CombinePath(dest, "bin", "go"), version);
             }
 
             await fileOps.CreateDirectoryAsync(fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions")).ConfigureAwait(false);
 
-            await this.PopulateGoDownloadsAsync(context.CancellationToken).ConfigureAwait(false);
+            await PopulateGoDownloadsAsync(logger, context.CancellationToken).ConfigureAwait(false);
 
             var suffix = ".windows-amd64.zip";
             var useZip = true;
@@ -222,9 +225,9 @@ namespace Inedo.Extensions.Golang.Operations
                 useZip = false;
             }
 
-            if (string.Equals(this.GoVersion, "latest", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(version, "latest", StringComparison.OrdinalIgnoreCase))
             {
-                this.GoVersion = GoDownloads.Where(i => i.StartsWith("go") && i.EndsWith(suffix)).Select(i => i.Substring(0, i.Length - suffix.Length).Substring("go".Length)).OrderByDescending(i =>
+                version = GoDownloads.Where(i => i.StartsWith("go") && i.EndsWith(suffix)).Select(i => i.Substring(0, i.Length - suffix.Length).Substring("go".Length)).OrderByDescending(i =>
                 {
                     Version v;
                     if (Version.TryParse(i, out v))
@@ -234,30 +237,30 @@ namespace Inedo.Extensions.Golang.Operations
                     return new Version(0, 0);
                 }).First();
 
-                this.LogDebug($"The latest Go version is {this.GoVersion}.");
+                logger?.LogDebug($"The latest Go version is {version}.");
 
-                dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + this.GoVersion);
+                dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + version);
                 if (await fileOps.DirectoryExistsAsync(dest).ConfigureAwait(false))
                 {
-                    this.GoExecutableName = fileOps.CombinePath(dest, "bin", "go");
-                    return;
+                    return Tuple.Create(fileOps.CombinePath(dest, "bin", "go"), version);
                 }
             }
 
-            var fileName = $"go{this.GoVersion}{suffix}";
+            var fileName = $"go{version}{suffix}";
             if (!GoDownloads.Contains(fileName))
             {
-                this.LogError($"Could not find Go version {this.GoVersion} for download.");
-                return;
+                logger?.LogError($"Could not find Go version {version} for download.");
+                return Tuple.Create((string)null, version);
             }
 
-            this.LogDebug($"Downloading and extracting {fileName}...");
+            logger?.LogDebug($"Downloading and extracting {fileName}...");
             using (var client = new HttpClient())
             using (var response = await client.GetAsync($"https://storage.googleapis.com/golang/{fileName}", HttpCompletionOption.ResponseHeadersRead, context.CancellationToken).ConfigureAwait(false))
             {
                 response.EnsureSuccessStatusCode();
 
                 var archiveDest = dest + ".tmp";
+                var dirDest = dest + ".tmpdir";
                 try
                 {
                     using (var archive = await fileOps.OpenFileAsync(archiveDest, FileMode.Create, FileAccess.Write).ConfigureAwait(false))
@@ -267,40 +270,44 @@ namespace Inedo.Extensions.Golang.Operations
 
                     if (useZip)
                     {
-                        var zipTempDest = archiveDest + "zip";
-                        try
-                        {
-                            await fileOps.ExtractZipFileAsync(archiveDest, zipTempDest, true).ConfigureAwait(false);
-                            await fileOps.MoveDirectoryAsync(fileOps.CombinePath(zipTempDest, "go"), dest).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            await fileOps.DeleteDirectoryAsync(zipTempDest).ConfigureAwait(false);
-                        }
+                        await fileOps.ExtractZipFileAsync(archiveDest, dirDest, true).ConfigureAwait(false);
                     }
                     else
                     {
-                        await fileOps.CreateDirectoryAsync(dest).ConfigureAwait(false);
-                        await this.ExecuteCommandLineAsync(context, new RemoteProcessStartInfo
+                        await fileOps.CreateDirectoryAsync(dirDest).ConfigureAwait(false);
+                        var processExecuter = await context.Agent.GetServiceAsync<IRemoteProcessExecuter>().ConfigureAwait(false);
+                        using (var process = processExecuter.CreateProcess(new RemoteProcessStartInfo
                         {
                             FileName = "tar",
-                            Arguments = JoinArgs(context.Agent, new[] { "xzC", dest, "-f", archiveDest, "--strip-components=1" })
-                        }).ConfigureAwait(false);
+                            Arguments = JoinArgs(context.Agent, new[] { "xzC", dirDest, "-f", archiveDest })
+                        }))
+                        {
+                            process.OutputDataReceived += (s, e) => logger?.LogDebug(e.Data);
+                            process.ErrorDataReceived += (s, e) => logger?.LogDebug(e.Data);
+                            process.Start();
+                            await process.WaitAsync(context.CancellationToken).ConfigureAwait(false);
+                            if (process.ExitCode != 0)
+                            {
+                                logger?.LogWarning($"tar exited with code {process.ExitCode}");
+                            }
+                        }
                     }
+                    await fileOps.MoveDirectoryAsync(fileOps.CombinePath(dirDest, "go"), dest).ConfigureAwait(false);
                 }
                 finally
                 {
+                    await fileOps.DeleteDirectoryAsync(dirDest).ConfigureAwait(false);
                     await fileOps.DeleteFileAsync(archiveDest).ConfigureAwait(false);
                 }
             }
-            this.LogDebug($"Downloaded Go {this.GoVersion} to {dest}.");
-            this.GoExecutableName = fileOps.CombinePath(dest, "bin", "go");
+            logger?.LogDebug($"Downloaded Go {version} to {dest}.");
+            return Tuple.Create(fileOps.CombinePath(dest, "bin", "go"), version);
         }
 
         private static readonly SemaphoreSlim GoDownloadsSemaphore = new SemaphoreSlim(1);
-        private static readonly List<string> GoDownloads = new List<string>();
+        internal static readonly List<string> GoDownloads = new List<string>();
 
-        private async Task PopulateGoDownloadsAsync(CancellationToken cancellationToken)
+        internal static async Task PopulateGoDownloadsAsync(ILogger logger, CancellationToken cancellationToken)
         {
             await GoDownloadsSemaphore.WaitAsync(cancellationToken);
             if (GoDownloads.Any())
@@ -310,7 +317,7 @@ namespace Inedo.Extensions.Golang.Operations
             }
             try
             {
-                this.LogDebug("Retrieving Go version information...");
+                logger?.LogDebug("Retrieving Go version information...");
                 var items = new List<string>();
                 using (var client = new HttpClient())
                 {

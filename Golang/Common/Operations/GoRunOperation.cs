@@ -18,9 +18,8 @@ using System.Threading.Tasks;
 namespace Inedo.Extensions.Golang.Operations
 {
     [DisplayName("Run Go program from source code")]
-    [ScriptNamespace("Golang")]
-    [ScriptAlias("Go-Run")]
-    [Tag("go")]
+    [Description("Compile and run a Go program in one step using the go run command.")]
+    [ScriptAlias("Run")]
     public sealed class GoRunOperation : GoBuildOperationBase
     {
         [DisplayName("From directory")]

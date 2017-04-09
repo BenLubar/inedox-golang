@@ -13,9 +13,7 @@ namespace Inedo.Extensions.Golang.Operations
 {
     [DisplayName("Update generated Go files")]
     [Description("Runs go generate on a package.")]
-    [ScriptNamespace("Golang")]
-    [ScriptAlias("Go-Generate")]
-    [Tag("go")]
+    [ScriptAlias("Generate")]
     public sealed class GoGenerateOperation : GoOperationBase
     {
         [Required]

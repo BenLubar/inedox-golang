@@ -14,9 +14,7 @@ namespace Inedo.Extensions.Golang.Operations
 {
     [DisplayName("Download Go Source Code")]
     [Description("Uses go get to download Go source code and dependencies based on an import path.")]
-    [ScriptNamespace("Golang")]
-    [ScriptAlias("Go-Get")]
-    [Tag("go")]
+    [ScriptAlias("Get")]
     public sealed class GoGetOperation : GoBuildOperationBase
     {
         [Required]
@@ -50,11 +48,10 @@ namespace Inedo.Extensions.Golang.Operations
             await this.ExecuteCommandLineAsync(context, "get", this.BuildArgs.Concat(new[]
             {
                 this.Install ? null : "-d",
-                "-u", "-f", "-v",
                 this.IncludeTestDependencies ? "-t" : null,
                 this.FixLegacyCode ? "-fix" : null,
                 this.Insecure ? "-insecure" : null,
-                "--", this.Package
+                "-v", "--", this.Package
             })).ConfigureAwait(false);
         }
 

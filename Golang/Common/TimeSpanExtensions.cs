@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Inedo.Extensions.Golang.Operations
+namespace Inedo.Extensions.Golang
 {
     internal static class TimeSpanExtensions
     {

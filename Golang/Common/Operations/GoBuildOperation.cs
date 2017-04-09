@@ -11,16 +11,14 @@ using Inedo.Diagnostics;
 using Inedo.Documentation;
 using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Inedo.Extensions.Golang.Operations
 {
     [DisplayName("Compile Go Package")]
     [Description("Builds a Go package using the go build command.")]
-    [ScriptNamespace("Golang")]
-    [ScriptAlias("Go-Build")]
-    [Tag("go")]
+    [ScriptAlias("Build")]
     public sealed class GoBuildOperation : GoBuildOperationBase
     {
         [Required]
@@ -54,7 +52,7 @@ namespace Inedo.Extensions.Golang.Operations
             {
                 this.LogWarning("Output filename must be set for an artifact to be created.");
             }
-            else if (!string.IsNullOrWhiteSpace(this.ArtifactName))
+            else if (!context.Simulation && !string.IsNullOrWhiteSpace(this.ArtifactName))
             {
                 var artifactId = new ArtifactIdentifier(context.ApplicationId.Value, context.ReleaseNumber, context.BuildNumber, context.DeployableId, this.ArtifactName);
                 using (var artifactBuilder = new ArtifactBuilder(artifactId, context.ExecutionId))

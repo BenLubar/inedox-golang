@@ -8,11 +8,9 @@ using Inedo.Otter.Extensibility;
 using Inedo.Otter.Extensibility.Operations;
 using Inedo.Otter.Web.Controls;
 #endif
-using Inedo.Diagnostics;
 using Inedo.Documentation;
 using Inedo.Extensions.Golang.SuggestionProviders;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -22,9 +20,8 @@ using System.Threading.Tasks;
 namespace Inedo.Extensions.Golang.Operations
 {
     [DisplayName("Test Go Package")]
-    [ScriptNamespace("Golang")]
-    [ScriptAlias("Go-Test")]
-    [Tag("go")]
+    [Description("Run test cases on a Go package using the go test command.")]
+    [ScriptAlias("Test")]
     public sealed class GoTestOperation : GoBuildOperationBase
     {
         [Required]
@@ -389,8 +386,7 @@ namespace Inedo.Extensions.Golang.Operations
             {
                 status = Domains.TestStatusCodes.Failed;
             }
-            var output = AH.NullIf(this.testOutput.ToString(), "");
-            DB.BuildTestResults_RecordTestResult(context.ExecutionId, this.Package, match.Groups[2].Value, status, output, start, end);
+            DB.BuildTestResults_RecordTestResult(context.ExecutionId, this.Package, match.Groups[2].Value, status, this.testOutput.ToString(), start, end);
             this.lastTest = null;
             this.lastTestFinished = null;
             this.testOutput = null;

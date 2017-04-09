@@ -47,7 +47,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
             }
             using (var agent = InedoAgent.Create(context.ServerId.Value))
             {
-                return ListAsync(agent, new[] { this.Pattern }, this.GoExecutableName, env).Result;
+                return ListAsync(agent, new[] { this.Pattern }, this.GoExecutableName, env).Result();
             }
         }
 

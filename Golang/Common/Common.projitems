@@ -11,12 +11,13 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoBuildOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoBuildOperationBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Operations\PrepareRuntimeOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoGenerateOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoGetOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoOperationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoRunOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoTestOperation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Operations\TimeSpanExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TimeSpanExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\BuildModeSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\CompilerSuggestionProvider.cs" />
@@ -26,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoArchSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoArmSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoOSSuggestionProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SuggestionProviders\GoVersionSuggestionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VariableFunctions\GoEnvVariableFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VariableFunctions\GoListVariableFunction.cs" />
   </ItemGroup>

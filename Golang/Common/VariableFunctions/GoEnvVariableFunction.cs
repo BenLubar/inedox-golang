@@ -39,7 +39,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
         {
             using (var agent = InedoAgent.Create(context.ServerId.Value))
             {
-                return GetAsync(agent, this.Name, this.GoExecutableName).Result;
+                return GetAsync(agent, this.Name, this.GoExecutableName).Result();
             }
         }
 

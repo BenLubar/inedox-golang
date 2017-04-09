@@ -1,4 +1,5 @@
 ﻿using Inedo.Agents;
+using Inedo.BuildMaster;
 using Inedo.BuildMaster.Data;
 using Inedo.BuildMaster.Extensibility;
 using Inedo.BuildMaster.Extensibility.Operations;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Inedo.Extensions.Golang.Operations
 {
+    [Tag(Tags.Reports)]
     public abstract class GoReportOperationBase : GoOperationBase
     {
         [Required]
