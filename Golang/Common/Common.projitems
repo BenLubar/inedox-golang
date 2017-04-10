@@ -9,6 +9,7 @@
     <Import_RootNamespace>Inedo.Extensions.Golang</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GoUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoBuildOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\GoBuildOperationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operations\PrepareRuntimeOperation.cs" />

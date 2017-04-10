@@ -11,7 +11,6 @@ using IGenericContext = Inedo.Otter.IOtterContext;
 #endif
 using Inedo.Agents;
 using Inedo.Documentation;
-using Inedo.Extensions.Golang.Operations;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -54,7 +53,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
             var info = new RemoteProcessStartInfo
             {
                 FileName = go,
-                Arguments = GoOperationBase.JoinArgs(agent, new[] { "env" }.Concat(names))
+                Arguments = GoUtils.JoinArgs(agent, new[] { "env" }.Concat(names))
             };
             if (env != null)
             {
@@ -67,7 +66,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
             using (var process = processExecuter.CreateProcess(info))
             {
                 var output = new List<string>(names.Count());
-                process.OutputDataReceived += (sender, e) => output.Add(e.Data);
+                process.OutputDataReceived += (s, e) => output.Add(e.Data);
                 process.Start();
                 await process.WaitAsync(cancellationToken).ConfigureAwait(false);
                 return output;

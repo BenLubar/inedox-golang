@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 namespace Inedo.Extensions.Golang.Operations
 {
     [DisplayName("Download Go Source Code")]
-    [Description("Uses go get to download Go source code and dependencies based on an import path.")]
+    [Description("Uses <code>go get</code> to download Go source code and dependencies based on an import path.")]
     [ScriptAlias("Get")]
     public sealed class GoGetOperation : GoBuildOperationBase
     {
         [Required]
         [DisplayName("Package path")]
-        [Description("The import path of the package to download.")]
+        [Description("The import path of the package to download. " + GoUtils.ImportPathDescription)]
         [ScriptAlias("Package")]
         public string Package { get; set; }
 
@@ -29,17 +29,17 @@ namespace Inedo.Extensions.Golang.Operations
         public bool IncludeTestDependencies { get; set; } = false;
 
         [DisplayName("Install command")]
-        [Description("Install the command provided by this package in GOPATH.")]
+        [Description("Install the command provided by this package in <code>GOPATH/bin</code>.")]
         [ScriptAlias("Install")]
         public bool Install { get; set; } = false;
 
         [DisplayName("Fix legacy code")]
-        [Description("Run go fix on the downloaded code before resolving dependencies.")]
+        [Description("Run <code>go fix</code> on the downloaded code before resolving dependencies.")]
         [ScriptAlias("Fix")]
         public bool FixLegacyCode { get; set; } = false;
 
         [DisplayName("Allow insecure package sources")]
-        [Description("Permit fetching from repositories using insecure schemes such as raw HTTP. Use with caution.")]
+        [Description("Permit fetching from repositories using insecure schemes such as unencrypted HTTP. Use with caution.")]
         [ScriptAlias("Insecure")]
         public bool Insecure { get; set; } = false;
 

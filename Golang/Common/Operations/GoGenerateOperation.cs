@@ -18,7 +18,7 @@ namespace Inedo.Extensions.Golang.Operations
     {
         [Required]
         [DisplayName("Package path")]
-        [Description("The import path of the package to update generated files.")]
+        [Description("The import path of the package to update generated files. " + GoUtils.ImportPathDescription)]
         [ScriptAlias("Package")]
         public string Package { get; set; }
 

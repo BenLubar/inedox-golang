@@ -22,11 +22,13 @@ namespace Inedo.Extensions.Golang.Operations
     public abstract class GoBuildOperationBase : GoOperationBase
     {
         [DisplayName("Tags")]
+        [Description(@"A space-separated list of additional <a href=""https://golang.org/pkg/go/build/#hdr-Build_Constraints"">build constraints</a> to consider satisfied.")]
         [ScriptAlias("Tags")]
         [Category("Advanced")]
         public string Tags { get; set; }
 
         [DisplayName("Build mode")]
+        [Description(@"There is a <a href=""https://golang.org/cmd/go/#hdr-Description_of_build_modes"">description of build modes</a> in the Go documentation.")]
         [ScriptAlias("Mode")]
         [Category("Advanced")]
         [PlaceholderText("default")]
@@ -39,6 +41,7 @@ namespace Inedo.Extensions.Golang.Operations
         public bool LinkShared { get; set; }
 
         [DisplayName("Detect data races")]
+        [Description(@"Compile with the <a href=""https://golang.org/doc/articles/race_detector.html"">data race detector</a> enabled. Typical programs compiled this way use 5-10&times; more memory and take 2-20&times; longer to run, but this can be a useful debugging tool.")]
         [ScriptAlias("Race")]
         [Category("Advanced")]
         public bool Race { get; set; } = false;

@@ -23,7 +23,7 @@ namespace Inedo.Extensions.Golang.Operations
     {
         [Required]
         [DisplayName("Package path")]
-        [Description("The import path of the package to compile.")]
+        [Description("The import path of the package to compile. " + GoUtils.ImportPathDescription)]
         [ScriptAlias("Package")]
         public string Package { get; set; }
 

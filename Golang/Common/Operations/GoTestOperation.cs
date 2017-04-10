@@ -45,7 +45,7 @@ namespace Inedo.Extensions.Golang.Operations
         [ScriptAlias("BenchmarkMemory")]
         public bool BenchmarkMemory { get; set; } = true;
 
-        [DisplayName("Benchmark goal time")]
+        [DisplayName("Benchmark goal time (seconds)")]
         [DefaultValue(1)]
         [ScriptAlias("BenchTime")]
         [TimeSpanUnit(TimeSpanUnit.Seconds)]
@@ -61,7 +61,7 @@ namespace Inedo.Extensions.Golang.Operations
         [ScriptAlias("ThreadPoolSizes")]
         public string ThreadPoolSizes { get; set; }
 
-        [DisplayName("Overall time limit")]
+        [DisplayName("Overall time limit (seconds)")]
         [DefaultValue(10 * 60)]
         [ScriptAlias("Deadline")]
         [TimeSpanUnit(TimeSpanUnit.Seconds)]

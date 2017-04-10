@@ -13,7 +13,6 @@ using IGenericContext = Inedo.Otter.IOtterContext;
 #endif
 using Inedo.Agents;
 using Inedo.Documentation;
-using Inedo.Extensions.Golang.Operations;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,26 +37,42 @@ namespace Inedo.Extensions.Golang.VariableFunctions
         [DefaultValue("go")]
         public string GoExecutableName { get; set; } = "go";
 
+        [VariableFunctionParameter(2, Optional = true)]
+        [Description("True to only list packages named main. False to exclude packages named main.")]
+        public bool? Commands { get; set; }
+
         protected override IEnumerable EvaluateVector(IGenericContext context)
         {
+            CancellationToken cancellationToken = CancellationToken.None;
             Dictionary<string, string> env = null;
             if (context is IOperationExecutionContext opContext)
             {
+                cancellationToken = opContext.CancellationToken;
                 env = new Dictionary<string, string>() { { "GOPATH", opContext.WorkingDirectory } };
             }
             using (var agent = InedoAgent.Create(context.ServerId.Value))
             {
-                return ListAsync(agent, new[] { this.Pattern }, this.GoExecutableName, env).Result();
+                return ListAsync(agent, new[] { this.Pattern }, this.Commands, this.GoExecutableName, env, cancellationToken).Result();
             }
         }
 
-        public static async Task<IEnumerable<string>> ListAsync(InedoAgent agent, IEnumerable<string> names, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<IEnumerable<string>> ListAsync(InedoAgent agent, IEnumerable<string> names, bool? commands, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var processExecuter = await agent.GetServiceAsync<IRemoteProcessExecuter>().ConfigureAwait(false);
             var info = new RemoteProcessStartInfo
             {
                 FileName = go,
-                Arguments = GoOperationBase.JoinArgs(agent, new[] { "list", "--" }.Concat(names))
+                Arguments = GoUtils.JoinArgs(agent, new[]
+                {
+                    "list",
+                    commands.HasValue ? "-f" : null,
+                    commands.HasValue ?
+                        commands.Value ?
+                            "{{if eq .Name \"main\"}}{{.ImportPath}}{{end}}" :
+                            "{{if ne .Name \"main\"}}{{.ImportPath}}{{end}}" :
+                        null,
+                    "--"
+                }.Concat(names))
             };
             if (env != null)
             {
@@ -70,7 +85,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
             using (var process = processExecuter.CreateProcess(info))
             {
                 var output = new List<string>(names.Count());
-                process.OutputDataReceived += (sender, e) => output.Add(e.Data);
+                process.OutputDataReceived += (s, e) => { if (!string.IsNullOrWhiteSpace(e.Data)) { output.Add(e.Data); } };
                 process.Start();
                 await process.WaitAsync(cancellationToken).ConfigureAwait(false);
                 return output;

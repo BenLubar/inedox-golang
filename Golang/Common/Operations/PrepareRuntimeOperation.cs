@@ -36,7 +36,7 @@ namespace Inedo.Extensions.Golang.Operations
 
         public override async Task ExecuteAsync(IOperationExecutionContext context)
         {
-            var version = await GoOperationBase.PrepareGoAsync(this, context, this.Version).ConfigureAwait(false);
+            var version = await GoUtils.PrepareGoAsync(this, context, this.Version).ConfigureAwait(false);
             this.ExecutablePath = version.Item1;
         }
 
