@@ -45,10 +45,10 @@ namespace Inedo.Extensions.Golang.VariableFunctions
         {
             CancellationToken cancellationToken = CancellationToken.None;
             Dictionary<string, string> env = null;
-            if (context is IOperationExecutionContext opContext)
+            if (context is IOperationExecutionContext)
             {
-                cancellationToken = opContext.CancellationToken;
-                env = new Dictionary<string, string>() { { "GOPATH", opContext.WorkingDirectory } };
+                cancellationToken = ((IOperationExecutionContext)context).CancellationToken;
+                env = new Dictionary<string, string>() { { "GOPATH", ((IOperationExecutionContext)context).WorkingDirectory } };
             }
             using (var agent = InedoAgent.Create(context.ServerId.Value))
             {
