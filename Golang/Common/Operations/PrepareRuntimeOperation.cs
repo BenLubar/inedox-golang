@@ -25,19 +25,21 @@ namespace Inedo.Extensions.Golang.Operations
         [DisplayName("Version")]
         [ScriptAlias("Version")]
         [DefaultValue("latest")]
+        [Description("The version of Go to download. By default, this is the latest version.")]
         [SuggestibleValue(typeof(GoVersionSuggestionProvider))]
         public string Version { get; set; } = "latest";
 
         [Output]
         [DisplayName("Go executable path")]
         [ScriptAlias(nameof(ExecutablePath))]
+        [Description("A variable where the path to the <code>go</code> command's executable will be stored.")]
         [PlaceholderText("eg. $GoExe")]
         public string ExecutablePath { get; set; }
 
         public override async Task ExecuteAsync(IOperationExecutionContext context)
         {
             var version = await GoUtils.PrepareGoAsync(this, context, this.Version).ConfigureAwait(false);
-            this.ExecutablePath = version.Item1;
+            this.ExecutablePath = version.ExecutablePath;
         }
 
         protected override ExtendedRichDescription GetDescription(IOperationConfiguration config)

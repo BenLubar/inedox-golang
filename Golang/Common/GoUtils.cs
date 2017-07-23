@@ -90,13 +90,25 @@ namespace Inedo.Extensions.Golang
             return agent.TryGetService<ILinuxFileOperationsExecuter>() == null ? AgentOperatingSystem.Windows : AgentOperatingSystem.Linux;
         }
 
-        internal static async Task<Tuple<string, string>> PrepareGoAsync(ILogger logger, IOperationExecutionContext context, string version)
+        internal struct GoVersion
+        {
+            internal GoVersion(string executablePath, string version)
+            {
+                this.ExecutablePath = executablePath;
+                this.Version = version;
+            }
+
+            public string ExecutablePath { get; }
+            public string Version { get; }
+        }
+
+        internal static async Task<GoVersion> PrepareGoAsync(ILogger logger, IOperationExecutionContext context, string version)
         {
             var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>().ConfigureAwait(false);
             var dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + version);
             if (await fileOps.DirectoryExistsAsync(dest).ConfigureAwait(false))
             {
-                return Tuple.Create(fileOps.CombinePath(dest, "bin", "go"), version);
+                return new GoVersion(fileOps.CombinePath(dest, "bin", "go"), version);
             }
 
             await fileOps.CreateDirectoryAsync(fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions")).ConfigureAwait(false);
@@ -126,7 +138,7 @@ namespace Inedo.Extensions.Golang
                 dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + version);
                 if (await fileOps.DirectoryExistsAsync(dest).ConfigureAwait(false))
                 {
-                    return Tuple.Create(fileOps.CombinePath(dest, "bin", "go"), version);
+                    return new GoVersion(fileOps.CombinePath(dest, "bin", "go"), version);
                 }
             }
 
@@ -134,7 +146,7 @@ namespace Inedo.Extensions.Golang
             if (!downloads.Contains(fileName))
             {
                 logger?.LogError($"Could not find Go version {version} for download.");
-                return Tuple.Create((string)null, version);
+                return new GoVersion(null, version);
             }
 
             logger?.LogDebug($"Downloading and extracting {fileName}...");
@@ -186,7 +198,7 @@ namespace Inedo.Extensions.Golang
                 }
             }
             logger?.LogDebug($"Downloaded Go {version} to {dest}.");
-            return Tuple.Create(fileOps.CombinePath(dest, "bin", "go"), version);
+            return new GoVersion(fileOps.CombinePath(dest, "bin", "go"), version);
         }
 
         private static readonly SemaphoreSlim GoDownloadsSemaphore = new SemaphoreSlim(1);

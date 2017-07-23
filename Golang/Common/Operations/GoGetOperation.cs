@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Inedo.Extensions.Golang.Operations
 {
     [DisplayName("Download Go Source Code")]
-    [Description("Uses <code>go get</code> to download Go source code and dependencies based on an import path.")]
+    [Description("Uses \"go get\" to download Go source code and dependencies based on an import path.")]
     [ScriptAlias("Get")]
     public sealed class GoGetOperation : GoBuildOperationBase
     {

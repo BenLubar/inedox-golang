@@ -83,8 +83,8 @@ namespace Inedo.Extensions.Golang.Operations
             if (string.IsNullOrEmpty(this.GoExecutableName))
             {
                 var result = await GoUtils.PrepareGoAsync(this, context, this.GoVersion).ConfigureAwait(false);
-                this.GoExecutableName = result.Item1;
-                this.GoVersion = result.Item2;
+                this.GoExecutableName = result.ExecutablePath;
+                this.GoVersion = result.Version;
             }
             var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>().ConfigureAwait(false);
             await fileOps.CreateDirectoryAsync(context.WorkingDirectory).ConfigureAwait(false);
