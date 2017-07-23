@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IAsyncVariableFunction.cs" />
     <Compile Include="Operations\GoCoverReportOperation.cs" />
     <Compile Include="Operations\GoProfileAnnotatedSourceReportOperation.cs" />
     <Compile Include="Operations\GoProfileGraphReportOperation.cs" />

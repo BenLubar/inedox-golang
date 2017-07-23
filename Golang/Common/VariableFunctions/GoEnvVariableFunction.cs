@@ -1,16 +1,19 @@
 ﻿#if BuildMaster
 using Inedo.BuildMaster.Extensibility;
+using Inedo.BuildMaster.Extensibility.Operations;
 using Inedo.BuildMaster.Extensibility.VariableFunctions;
 using InedoAgent = Inedo.BuildMaster.Extensibility.Agents.BuildMasterAgent;
 using IGenericContext = Inedo.BuildMaster.Extensibility.IGenericBuildMasterContext;
 #elif Otter
 using Inedo.Otter.Extensibility;
+using Inedo.Otter.Extensibility.Operations;
 using Inedo.Otter.Extensibility.VariableFunctions;
 using InedoAgent = Inedo.Otter.Extensibility.Agents.OtterAgent;
 using IGenericContext = Inedo.Otter.IOtterContext;
 #endif
 using Inedo.Agents;
 using Inedo.Documentation;
+using Inedo.ExecutionEngine;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -23,7 +26,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
     [ScriptNamespace("Golang")]
     [Description("Returns the value of a Go environment variable.")]
     [Tag("go")]
-    public sealed class GoEnvVariableFunction : ScalarVariableFunction
+    public sealed class GoEnvVariableFunction : ScalarVariableFunction, IAsyncVariableFunction
     {
         [VariableFunctionParameter(0)]
         [Description("Environment variable name, such as GOOS or CGO_ENABLED.")]
@@ -36,9 +39,27 @@ namespace Inedo.Extensions.Golang.VariableFunctions
 
         protected override object EvaluateScalar(IGenericContext context)
         {
+            CancellationToken cancellationToken = CancellationToken.None;
+            if (context is IOperationExecutionContext)
+            {
+                cancellationToken = ((IOperationExecutionContext)context).CancellationToken;
+            }
             using (var agent = InedoAgent.Create(context.ServerId.Value))
             {
-                return GetAsync(agent, this.Name, this.GoExecutableName).Result();
+                return GetAsync(agent, this.Name, this.GoExecutableName, null, cancellationToken).Result();
+            }
+        }
+
+        public async Task<RuntimeValue> EvaluateAsync(IGenericContext context)
+        {
+            CancellationToken cancellationToken = CancellationToken.None;
+            if (context is IOperationExecutionContext)
+            {
+                cancellationToken = ((IOperationExecutionContext)context).CancellationToken;
+            }
+            using (var agent = InedoAgent.Create(context.ServerId.Value))
+            {
+                return await GetAsync(agent, this.Name, this.GoExecutableName, null, cancellationToken).ConfigureAwait(false);
             }
         }
 

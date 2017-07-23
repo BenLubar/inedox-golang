@@ -13,6 +13,7 @@ using IGenericContext = Inedo.Otter.IOtterContext;
 #endif
 using Inedo.Agents;
 using Inedo.Documentation;
+using Inedo.ExecutionEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,7 +27,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
     [ScriptNamespace("Golang")]
     [Description("Returns a list of Go packages that match a pattern.")]
     [Tag("go")]
-    public sealed class GoListVariableFunction : VectorVariableFunction
+    public sealed class GoListVariableFunction : VectorVariableFunction, IAsyncVariableFunction
     {
         [VariableFunctionParameter(0)]
         [Description("Package pattern, like encoding/... or golang.org/x/crypto/bcrypt.")]
@@ -53,6 +54,22 @@ namespace Inedo.Extensions.Golang.VariableFunctions
             using (var agent = InedoAgent.Create(context.ServerId.Value))
             {
                 return ListAsync(agent, new[] { this.Pattern }, this.Commands, this.GoExecutableName, env, cancellationToken).Result();
+            }
+        }
+
+        public async Task<RuntimeValue> EvaluateAsync(IGenericContext context)
+        {
+            CancellationToken cancellationToken = CancellationToken.None;
+            Dictionary<string, string> env = null;
+            if (context is IOperationExecutionContext)
+            {
+                cancellationToken = ((IOperationExecutionContext)context).CancellationToken;
+                env = new Dictionary<string, string>() { { "GOPATH", ((IOperationExecutionContext)context).WorkingDirectory } };
+            }
+            using (var agent = InedoAgent.Create(context.ServerId.Value))
+            {
+                var list = await ListAsync(agent, new[] { this.Pattern }, this.Commands, this.GoExecutableName, env, cancellationToken).ConfigureAwait(false);
+                return new RuntimeValue(list.Select(s => new RuntimeValue(s)));
             }
         }
 
