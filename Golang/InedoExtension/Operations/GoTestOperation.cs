@@ -1,21 +1,12 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Data;
-using Inedo.BuildMaster.Extensibility;
-using Inedo.BuildMaster.Extensibility.Operations;
-using Inedo.BuildMaster.Web.Controls;
-#elif Otter
-using Inedo.Otter.Extensibility;
-using Inedo.Otter.Extensibility.Operations;
-using Inedo.Otter.Web.Controls;
-#endif
-using Inedo.Documentation;
-using Inedo.Extensions.Golang.SuggestionProviders;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Inedo.Documentation;
+using Inedo.Extensibility;
+using Inedo.Extensibility.Operations;
+using Inedo.Extensions.Golang.SuggestionProviders;
+using Inedo.Web;
 
 namespace Inedo.Extensions.Golang.Operations
 {
@@ -80,7 +71,7 @@ namespace Inedo.Extensions.Golang.Operations
         [DisplayName("Coverage mode")]
         [Category("Profiling")]
         [ScriptAlias("CoverMode")]
-        [SuggestibleValue(typeof(CoverModeSuggestionProvider))]
+        [SuggestableValue(typeof(CoverModeSuggestionProvider))]
         public string CoverMode { get; set; }
 
         [DisplayName("CPU profile")]

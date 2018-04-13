@@ -1,19 +1,13 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Extensibility;
-using Inedo.BuildMaster.Extensibility.Operations;
-using Inedo.BuildMaster.Web.Controls.Plans;
-#elif Otter
-using Inedo.Otter.Extensibility;
-using Inedo.Otter.Extensibility.Operations;
-using Inedo.Otter.Web.Controls.Plans;
-#endif
-using Inedo.Agents;
-using Inedo.Documentation;
-using Inedo.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Inedo.Agents;
+using Inedo.Documentation;
+using Inedo.Extensibility;
+using Inedo.Extensibility.Operations;
+using Inedo.IO;
+using Inedo.Web.Plans.ArgumentEditors;
 
 namespace Inedo.Extensions.Golang.Operations
 {
@@ -29,12 +23,12 @@ namespace Inedo.Extensions.Golang.Operations
         public string SourceDirectory { get; set; }
 
         [DisplayName("Include files")]
-        [Description(CommonDescriptions.MaskingHelp)]
+        [MaskingDescription]
         [DefaultValue("*.go")]
         [ScriptAlias("Include")]
         public IEnumerable<string> Includes { get; set; }
         [DisplayName("Exclude files")]
-        [Description(CommonDescriptions.MaskingHelp)]
+        [MaskingDescription]
         [ScriptAlias("Exclude")]
         public IEnumerable<string> Excludes { get; set; }
 

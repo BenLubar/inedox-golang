@@ -1,13 +1,4 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Extensibility.Operations;
-using InedoAgent = Inedo.BuildMaster.Extensibility.Agents.BuildMasterAgent;
-#elif Otter
-using Inedo.Otter.Extensibility.Operations;
-using InedoAgent = Inedo.Otter.Extensibility.Agents.OtterAgent;
-#endif
-using Inedo.Agents;
-using Inedo.Diagnostics;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +7,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Inedo.Agents;
+using Inedo.Diagnostics;
+using Inedo.Extensibility.Agents;
+using Inedo.Extensibility.Operations;
+using Inedo.IO;
 
 namespace Inedo.Extensions.Golang
 {
@@ -76,7 +72,7 @@ namespace Inedo.Extensions.Golang
             return "'" + arg.Replace("'", "'\"'\"'") + "'";
         }
 
-        internal static string JoinArgs(InedoAgent agent, IEnumerable<string> args)
+        internal static string JoinArgs(Agent agent, IEnumerable<string> args)
         {
             var escape = AH.Switch<AgentOperatingSystem, Func<string, string>>(GetAgentOperatingSystem(agent)).
                 Case(AgentOperatingSystem.Windows, EscapeArgWindows).
@@ -85,7 +81,7 @@ namespace Inedo.Extensions.Golang
             return string.Join(" ", args.Where(arg => arg != null).Select(escape));
         }
 
-        internal static AgentOperatingSystem GetAgentOperatingSystem(InedoAgent agent)
+        internal static AgentOperatingSystem GetAgentOperatingSystem(Agent agent)
         {
             return agent.TryGetService<ILinuxFileOperationsExecuter>() == null ? AgentOperatingSystem.Windows : AgentOperatingSystem.Linux;
         }
@@ -102,7 +98,7 @@ namespace Inedo.Extensions.Golang
             public string Version { get; }
         }
 
-        internal static async Task<GoVersion> PrepareGoAsync(ILogger logger, IOperationExecutionContext context, string version)
+        internal static async Task<GoVersion> PrepareGoAsync(ILogSink logger, IOperationExecutionContext context, string version)
         {
             var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>().ConfigureAwait(false);
             var dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + version);
@@ -167,7 +163,7 @@ namespace Inedo.Extensions.Golang
                     switch (agentOS)
                     {
                         case AgentOperatingSystem.Windows:
-                            await fileOps.ExtractZipFileAsync(archiveDest, dirDest, true).ConfigureAwait(false);
+                            await fileOps.ExtractZipFileAsync(archiveDest, dirDest, FileCreationOptions.OverwriteReadOnly).ConfigureAwait(false);
                             break;
                         case AgentOperatingSystem.Linux:
                             await fileOps.CreateDirectoryAsync(dirDest).ConfigureAwait(false);
@@ -204,7 +200,7 @@ namespace Inedo.Extensions.Golang
         private static readonly SemaphoreSlim GoDownloadsSemaphore = new SemaphoreSlim(1);
         private static volatile List<string> GoDownloadsCache = null;
 
-        internal static async Task<IReadOnlyList<string>> PopulateGoDownloadsAsync(ILogger logger, CancellationToken cancellationToken)
+        internal static async Task<IReadOnlyList<string>> PopulateGoDownloadsAsync(ILogSink logger, CancellationToken cancellationToken)
         {
             await GoDownloadsSemaphore.WaitAsync(cancellationToken);
             var downloads = GoDownloadsCache;

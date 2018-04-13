@@ -1,25 +1,17 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Extensibility;
-using Inedo.BuildMaster.Extensibility.Operations;
-using Inedo.BuildMaster.Extensibility.VariableFunctions;
-using InedoAgent = Inedo.BuildMaster.Extensibility.Agents.BuildMasterAgent;
-using IGenericContext = Inedo.BuildMaster.Extensibility.IGenericBuildMasterContext;
-#elif Otter
-using Inedo.Otter.Extensibility;
-using Inedo.Otter.Extensibility.Operations;
-using Inedo.Otter.Extensibility.VariableFunctions;
-using InedoAgent = Inedo.Otter.Extensibility.Agents.OtterAgent;
-using IGenericContext = Inedo.Otter.IOtterContext;
-#endif
-using Inedo.Agents;
-using Inedo.Documentation;
-using Inedo.ExecutionEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Inedo.Agents;
+using Inedo.Documentation;
+using Inedo.ExecutionEngine;
+using Inedo.Extensibility;
+using Inedo.Extensibility.Agents;
+using Inedo.Extensibility.Operations;
+using Inedo.Extensibility.VariableFunctions;
 
 namespace Inedo.Extensions.Golang.VariableFunctions
 {
@@ -42,38 +34,30 @@ namespace Inedo.Extensions.Golang.VariableFunctions
         [Description("True to only list packages named main. False to exclude packages named main.")]
         public bool? Commands { get; set; }
 
-        protected override IEnumerable EvaluateVector(IGenericContext context)
+        protected override IEnumerable EvaluateVector(IVariableFunctionContext context)
         {
-            CancellationToken cancellationToken = CancellationToken.None;
-            Dictionary<string, string> env = null;
-            if (context is IOperationExecutionContext)
+            if (!(context is IOperationExecutionContext opContext))
             {
-                cancellationToken = ((IOperationExecutionContext)context).CancellationToken;
-                env = new Dictionary<string, string>() { { "GOPATH", ((IOperationExecutionContext)context).WorkingDirectory } };
+                throw new NotSupportedException("GoList may only be called in an execution");
             }
-            using (var agent = InedoAgent.Create(context.ServerId.Value))
-            {
-                return ListAsync(agent, new[] { this.Pattern }, this.Commands, this.GoExecutableName, env, cancellationToken).Result();
-            }
+
+            var env = new Dictionary<string, string>() { { "GOPATH", opContext.WorkingDirectory } };
+            return ListAsync(opContext.Agent, new[] { this.Pattern }, this.Commands, this.GoExecutableName, env, opContext.CancellationToken).Result();
         }
 
-        public async Task<RuntimeValue> EvaluateAsync(IGenericContext context)
+        public async Task<RuntimeValue> EvaluateAsync(IVariableFunctionContext context)
         {
-            CancellationToken cancellationToken = CancellationToken.None;
-            Dictionary<string, string> env = null;
-            if (context is IOperationExecutionContext)
+            if (!(context is IOperationExecutionContext opContext))
             {
-                cancellationToken = ((IOperationExecutionContext)context).CancellationToken;
-                env = new Dictionary<string, string>() { { "GOPATH", ((IOperationExecutionContext)context).WorkingDirectory } };
+                throw new NotSupportedException("GoList may only be called in an execution");
             }
-            using (var agent = InedoAgent.Create(context.ServerId.Value))
-            {
-                var list = await ListAsync(agent, new[] { this.Pattern }, this.Commands, this.GoExecutableName, env, cancellationToken).ConfigureAwait(false);
-                return new RuntimeValue(list.Select(s => new RuntimeValue(s)));
-            }
+
+            var env = new Dictionary<string, string>() { { "GOPATH", opContext.WorkingDirectory } };
+            var list = await ListAsync(opContext.Agent, new[] { this.Pattern }, this.Commands, this.GoExecutableName, env, opContext.CancellationToken).ConfigureAwait(false);
+            return new RuntimeValue(list.Select(s => new RuntimeValue(s)));
         }
 
-        public static async Task<IEnumerable<string>> ListAsync(InedoAgent agent, IEnumerable<string> names, bool? commands, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<IEnumerable<string>> ListAsync(Agent agent, IEnumerable<string> names, bool? commands, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var processExecuter = await agent.GetServiceAsync<IRemoteProcessExecuter>().ConfigureAwait(false);
             var info = new RemoteProcessStartInfo

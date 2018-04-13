@@ -1,21 +1,15 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Extensibility;
-using Inedo.BuildMaster.Extensibility.Operations;
-using Inedo.BuildMaster.Web.Controls;
-#elif Otter
-using Inedo.Otter.Extensibility;
-using Inedo.Otter.Extensibility.Operations;
-using Inedo.Otter.Web.Controls;
-#endif
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using Inedo.Agents;
 using Inedo.Diagnostics;
 using Inedo.Documentation;
+using Inedo.Extensibility;
+using Inedo.Extensibility.Operations;
 using Inedo.Extensions.Golang.SuggestionProviders;
 using Inedo.Extensions.Golang.VariableFunctions;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Linq;
+using Inedo.Web;
 
 namespace Inedo.Extensions.Golang.Operations
 {
@@ -32,7 +26,7 @@ namespace Inedo.Extensions.Golang.Operations
         [ScriptAlias("Mode")]
         [Category("Advanced")]
         [PlaceholderText("default")]
-        [SuggestibleValue(typeof(BuildModeSuggestionProvider))]
+        [SuggestableValue(typeof(BuildModeSuggestionProvider))]
         public string BuildMode { get; set; }
 
         [DisplayName("Use shared libraries")]
@@ -50,7 +44,7 @@ namespace Inedo.Extensions.Golang.Operations
         [ScriptAlias("Compiler")]
         [Category("Compiler")]
         [PlaceholderText("gc")]
-        [SuggestibleValue(typeof(CompilerSuggestionProvider))]
+        [SuggestableValue(typeof(CompilerSuggestionProvider))]
         public string Compiler { get; set; }
 
         [DisplayName("Path to gccgo command")]
@@ -61,13 +55,13 @@ namespace Inedo.Extensions.Golang.Operations
         [DisplayName("ARM architecture version")]
         [ScriptAlias("GoArm")]
         [Category("Low-Level")]
-        [SuggestibleValue(typeof(GoArmSuggestionProvider))]
+        [SuggestableValue(typeof(GoArmSuggestionProvider))]
         public string GoArm { get; set; }
 
         [DisplayName("x86 floating-point instruction set")]
         [ScriptAlias("Go386")]
         [Category("Low-Level")]
-        [SuggestibleValue(typeof(Go386SuggestionProvider))]
+        [SuggestableValue(typeof(Go386SuggestionProvider))]
         public string Go386 { get; set; }
 
         [DisplayName("Assembler flags")]

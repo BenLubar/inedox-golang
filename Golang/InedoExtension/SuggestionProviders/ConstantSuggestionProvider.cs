@@ -1,12 +1,7 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Extensibility;
-using Inedo.BuildMaster.Web.Controls;
-#elif Otter
-using Inedo.Otter.Extensibility;
-using Inedo.Otter.Web.Controls;
-#endif
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Inedo.Extensibility;
+using Inedo.Web;
 
 namespace Inedo.Extensions.Golang.SuggestionProviders
 {

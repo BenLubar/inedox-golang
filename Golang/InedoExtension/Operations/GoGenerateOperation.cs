@@ -1,13 +1,8 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Extensibility;
-using Inedo.BuildMaster.Extensibility.Operations;
-#elif Otter
-using Inedo.Otter.Extensibility;
-using Inedo.Otter.Extensibility.Operations;
-#endif
-using Inedo.Documentation;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Threading.Tasks;
+using Inedo.Documentation;
+using Inedo.Extensibility;
+using Inedo.Extensibility.Operations;
 
 namespace Inedo.Extensions.Golang.Operations
 {

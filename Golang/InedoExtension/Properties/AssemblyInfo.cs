@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Inedo.Extensibility;
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Golang")]
-[assembly: AssemblyDescription("Contains operations helpful when building programs written in Google Go.")]
+[assembly: AssemblyTitle("Go")]
+[assembly: AssemblyDescription("Contains operations helpful when building programs written in Go.")]
 
 [assembly: ComVisible(false)]
 [assembly: AssemblyCompany("Inedo, LLC")]
@@ -11,3 +12,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.0.0.0")]
 [assembly: AssemblyFileVersion("0.0.0.0")]
 [assembly: CLSCompliant(false)]
+
+[assembly: AppliesTo(InedoProduct.BuildMaster | InedoProduct.Otter | InedoProduct.Hedgehog)]

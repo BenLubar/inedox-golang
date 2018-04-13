@@ -3,33 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{6FC1110B-3FE8-4143-8C1E-AFA947E2D74D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildMasterExtension", "BuildMasterExtension\BuildMasterExtension.csproj", "{856DEBE3-C564-4B03-8CE0-E94FA2F21B5F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OtterExtension", "OtterExtension\OtterExtension.csproj", "{AB2552BD-7397-4264-8FDB-345093F37AC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InedoExtension", "InedoExtension\InedoExtension.csproj", "{B4DD4570-7F15-4B85-9210-2233EB23EFD1}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Common\Common.projitems*{6fc1110b-3fe8-4143-8c1e-afa947e2d74d}*SharedItemsImports = 13
-		Common\Common.projitems*{856debe3-c564-4b03-8ce0-e94fa2f21b5f}*SharedItemsImports = 4
-		Common\Common.projitems*{ab2552bd-7397-4264-8fdb-345093f37ac0}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{856DEBE3-C564-4B03-8CE0-E94FA2F21B5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{856DEBE3-C564-4B03-8CE0-E94FA2F21B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{856DEBE3-C564-4B03-8CE0-E94FA2F21B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{856DEBE3-C564-4B03-8CE0-E94FA2F21B5F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB2552BD-7397-4264-8FDB-345093F37AC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB2552BD-7397-4264-8FDB-345093F37AC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB2552BD-7397-4264-8FDB-345093F37AC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB2552BD-7397-4264-8FDB-345093F37AC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4DD4570-7F15-4B85-9210-2233EB23EFD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4DD4570-7F15-4B85-9210-2233EB23EFD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4DD4570-7F15-4B85-9210-2233EB23EFD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4DD4570-7F15-4B85-9210-2233EB23EFD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EB515B00-9E15-4E26-8C86-50B0FC685A48}
 	EndGlobalSection
 EndGlobal

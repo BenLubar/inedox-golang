@@ -1,19 +1,12 @@
-﻿#if BuildMaster
-using Inedo.BuildMaster.Extensibility;
-using Inedo.BuildMaster.Extensibility.Operations;
-using Inedo.BuildMaster.Web.Controls;
-using Inedo.BuildMaster.Web.Controls.Plans;
-#elif Otter
-using Inedo.Otter.Extensibility;
-using Inedo.Otter.Extensibility.Operations;
-using Inedo.Otter.Web.Controls;
-using Inedo.Otter.Web.Controls.Plans;
-#endif
-using Inedo.Agents;
+﻿using Inedo.Agents;
 using Inedo.Diagnostics;
 using Inedo.Documentation;
+using Inedo.Extensibility;
+using Inedo.Extensibility.Operations;
 using Inedo.Extensions.Golang.SuggestionProviders;
 using Inedo.Extensions.Golang.VariableFunctions;
+using Inedo.Web;
+using Inedo.Web.Plans.ArgumentEditors;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -36,7 +29,7 @@ namespace Inedo.Extensions.Golang.Operations
         [Category("Low-Level")]
         [ScriptAlias("GoVersion")]
         [DefaultValue("latest")]
-        [SuggestibleValue(typeof(GoVersionSuggestionProvider))]
+        [SuggestableValue(typeof(GoVersionSuggestionProvider))]
         public string GoVersion { get; set; } = "latest";
 
         [DisplayName("Operating system")]
@@ -44,7 +37,7 @@ namespace Inedo.Extensions.Golang.Operations
         [Category("Low-Level")]
         [ScriptAlias("GoOS")]
         [PlaceholderText("$GoEnv(GOOS)")]
-        [SuggestibleValue(typeof(GoOSSuggestionProvider))]
+        [SuggestableValue(typeof(GoOSSuggestionProvider))]
         public string GoOS { get; set; }
 
         [DisplayName("Processor architecture")]
@@ -52,7 +45,7 @@ namespace Inedo.Extensions.Golang.Operations
         [Category("Low-Level")]
         [ScriptAlias("GoArch")]
         [PlaceholderText("$GoEnv(GOARCH)")]
-        [SuggestibleValue(typeof(GoArchSuggestionProvider))]
+        [SuggestableValue(typeof(GoArchSuggestionProvider))]
         public string GoArch { get; set; }
 
         [DisplayName("Go working directory")]
