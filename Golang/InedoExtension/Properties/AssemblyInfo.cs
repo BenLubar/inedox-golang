@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Go")]
+[assembly: AssemblyTitle("Golang")]
 [assembly: AssemblyDescription("Contains operations helpful when building programs written in Go.")]
 
 [assembly: ComVisible(false)]
