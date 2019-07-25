@@ -51,7 +51,7 @@ namespace Inedo.Extensions.Golang.Operations
         [DisplayName("Go working directory")]
         [Description(@"Also known as <code>GOPATH</code>. See the Go documentation of the <a href=""https://golang.org/cmd/go/#hdr-GOPATH_environment_variable"">GOPATH environment variable</a> for more details.")]
         [Category("Low-Level")]
-        [PlaceholderText("$WorkingDirectory")]
+        [PlaceholderText("[agent-specific directory]")]
         [ScriptAlias("GoPath")]
         [FilePathEditor]
         public string GoPath { get; set; }
@@ -90,7 +90,7 @@ namespace Inedo.Extensions.Golang.Operations
             };
             var goos = this.GoOS;
             var goarch = this.GoArch;
-            var gopath = context.ResolvePath(this.GoPath);
+            var gopath = string.IsNullOrEmpty(this.GoPath) ? fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync(), "gopath") : context.ResolvePath(this.GoPath);
 
             if (string.IsNullOrEmpty(goos) || string.IsNullOrEmpty(goarch))
             {
