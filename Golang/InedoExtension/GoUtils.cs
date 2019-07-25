@@ -29,7 +29,7 @@ namespace Inedo.Extensions.Golang
         {
             // https://msdn.microsoft.com/en-us/library/ms880421
 
-            if (!arg.Any(c => char.IsWhiteSpace(c) || c == '\\' || c == '"'))
+            if (arg.Length > 0 && !arg.Any(c => char.IsWhiteSpace(c) || c == '\\' || c == '"'))
             {
                 return arg;
             }
@@ -64,7 +64,7 @@ namespace Inedo.Extensions.Golang
 
         private static string EscapeArgLinux(string arg)
         {
-            if (arg.All(c => char.IsLetterOrDigit(c) || c == '/' || c == '.' || c == '_' || c == '-'))
+            if (arg.Length > 0 && arg.All(c => char.IsLetterOrDigit(c) || c == '/' || c == '.' || c == '_' || c == '-'))
             {
                 return arg;
             }
