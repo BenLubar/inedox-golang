@@ -51,7 +51,13 @@ namespace Inedo.Extensions.Golang.VariableFunctions
 
         public static async Task<string> GetAsync(Agent agent, string name, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return (await GetMultiAsync(agent, new[] { name }, go, env, cancellationToken).ConfigureAwait(false)).First();
+            var values = await GetMultiAsync(agent, new[] { name }, go, env, cancellationToken).ConfigureAwait(false);
+            if (!values.Any())
+            {
+                throw new ArgumentException($"No GO environment variable found for name '{name}'", nameof(name));
+            }
+
+            return values.First();
         }
 
         public static async Task<IEnumerable<string>> GetMultiAsync(Agent agent, IEnumerable<string> names, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
