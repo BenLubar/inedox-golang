@@ -97,11 +97,11 @@ namespace Inedo.Extensions.Golang.Operations
                 var actualOSArch = await GoEnvVariableFunction.GetMultiAsync(context.Agent, new[] { "GOOS", "GOARCH" }, this.GoExecutableName, null, context.CancellationToken).ConfigureAwait(false);
                 if (string.IsNullOrEmpty(goos))
                 {
-                    goos = actualOSArch.ElementAt(0);
+                    goos = actualOSArch["GOOS"];
                 }
                 if (string.IsNullOrEmpty(goarch))
                 {
-                    goarch = actualOSArch.ElementAt(1);
+                    goarch = actualOSArch["GOARCH"];
                 }
             }
 

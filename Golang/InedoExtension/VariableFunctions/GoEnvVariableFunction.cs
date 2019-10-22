@@ -5,10 +5,12 @@ using Inedo.Extensibility;
 using Inedo.Extensibility.Agents;
 using Inedo.Extensibility.Operations;
 using Inedo.Extensibility.VariableFunctions;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -52,21 +54,17 @@ namespace Inedo.Extensions.Golang.VariableFunctions
         public static async Task<string> GetAsync(Agent agent, string name, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var values = await GetMultiAsync(agent, new[] { name }, go, env, cancellationToken).ConfigureAwait(false);
-            if (!values.Any())
-            {
-                throw new ArgumentException($"No GO environment variable found for name '{name}'", nameof(name));
-            }
 
-            return values.First();
+            return values.GetValueOrDefault(name, string.Empty);
         }
 
-        public static async Task<IEnumerable<string>> GetMultiAsync(Agent agent, IEnumerable<string> names, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<IReadOnlyDictionary<string, string>> GetMultiAsync(Agent agent, IEnumerable<string> names, string go = "go", IDictionary<string, string> env = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var processExecuter = await agent.GetServiceAsync<IRemoteProcessExecuter>().ConfigureAwait(false);
             var info = new RemoteProcessStartInfo
             {
                 FileName = go,
-                Arguments = GoUtils.JoinArgs(agent, new[] { "env" }.Concat(names))
+                Arguments = GoUtils.JoinArgs(agent, new[] { "env", "-json", "--" }.Concat(names))
             };
             if (env != null)
             {
@@ -78,11 +76,14 @@ namespace Inedo.Extensions.Golang.VariableFunctions
 
             using (var process = processExecuter.CreateProcess(info))
             {
-                var output = new List<string>(names.Count());
-                process.OutputDataReceived += (s, e) => output.Add(e.Data);
+                var output = new StringBuilder();
+
+                process.OutputDataReceived += (s, e) => output.AppendLine(e.Data);
                 process.Start();
+
                 await process.WaitAsync(cancellationToken).ConfigureAwait(false);
-                return output;
+
+                return JsonConvert.DeserializeObject<Dictionary<string, string>>(output.ToString());
             }
         }
     }

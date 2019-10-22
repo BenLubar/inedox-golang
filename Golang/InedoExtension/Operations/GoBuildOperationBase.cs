@@ -177,7 +177,7 @@ namespace Inedo.Extensions.Golang.Operations
             {
                 this.LogDebug("CGO_ENABLED = 1");
                 var actualCgoVars = await GoEnvVariableFunction.GetMultiAsync(context.Agent, cgoVars.Keys, this.GoExecutableName, info.EnvironmentVariables, context.CancellationToken).ConfigureAwait(false);
-                foreach (var cgoVar in cgoVars.Keys.Zip(actualCgoVars, (k, v) => new KeyValuePair<string, string>(k, v)))
+                foreach (var cgoVar in actualCgoVars)
                 {
                     this.LogDebug($"{cgoVar.Key} = {cgoVar.Value}");
                 }
