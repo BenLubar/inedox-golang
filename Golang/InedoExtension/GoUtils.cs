@@ -88,12 +88,14 @@ namespace Inedo.Extensions.Golang
 
         internal struct GoVersion
         {
-            internal GoVersion(string executablePath, string version)
+            internal GoVersion(string goroot, string executablePath, string version)
             {
+                this.GoRoot = goroot;
                 this.ExecutablePath = executablePath;
                 this.Version = version;
             }
 
+            public string GoRoot { get; }
             public string ExecutablePath { get; }
             public string Version { get; }
         }
@@ -104,7 +106,7 @@ namespace Inedo.Extensions.Golang
             var dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + version);
             if (await fileOps.DirectoryExistsAsync(dest).ConfigureAwait(false))
             {
-                return new GoVersion(fileOps.CombinePath(dest, "bin", "go"), version);
+                return new GoVersion(dest, fileOps.CombinePath(dest, "bin", "go"), version);
             }
 
             await fileOps.CreateDirectoryAsync(fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions")).ConfigureAwait(false);
@@ -134,7 +136,7 @@ namespace Inedo.Extensions.Golang
                 dest = fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync().ConfigureAwait(false), "GoVersions", "go" + version);
                 if (await fileOps.DirectoryExistsAsync(dest).ConfigureAwait(false))
                 {
-                    return new GoVersion(fileOps.CombinePath(dest, "bin", "go"), version);
+                    return new GoVersion(dest, fileOps.CombinePath(dest, "bin", "go"), version);
                 }
             }
 
@@ -142,7 +144,7 @@ namespace Inedo.Extensions.Golang
             if (!downloads.Contains(fileName))
             {
                 logger?.LogError($"Could not find Go version {version} for download.");
-                return new GoVersion(null, version);
+                return new GoVersion(null, null, version);
             }
 
             logger?.LogDebug($"Downloading and extracting {fileName}...");
@@ -194,7 +196,7 @@ namespace Inedo.Extensions.Golang
                 }
             }
             logger?.LogDebug($"Downloaded Go {version} to {dest}.");
-            return new GoVersion(fileOps.CombinePath(dest, "bin", "go"), version);
+            return new GoVersion(dest, fileOps.CombinePath(dest, "bin", "go"), version);
         }
 
         private static readonly SemaphoreSlim GoDownloadsSemaphore = new SemaphoreSlim(1);

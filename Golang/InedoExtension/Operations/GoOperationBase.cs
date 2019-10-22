@@ -73,10 +73,12 @@ namespace Inedo.Extensions.Golang.Operations
 
         protected async Task<int> ExecuteCommandLineAsync(IOperationExecutionContext context, string subCommand, IEnumerable<string> args)
         {
+            string goroot = null;
             if (string.IsNullOrEmpty(this.GoExecutableName))
             {
                 var result = await GoUtils.PrepareGoAsync(this, context, this.GoVersion).ConfigureAwait(false);
                 this.GoExecutableName = result.ExecutablePath;
+                goroot = result.GoRoot;
                 this.GoVersion = result.Version;
             }
             var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>().ConfigureAwait(false);
@@ -91,6 +93,10 @@ namespace Inedo.Extensions.Golang.Operations
             var goos = this.GoOS;
             var goarch = this.GoArch;
             var gopath = string.IsNullOrEmpty(this.GoPath) ? fileOps.CombinePath(await fileOps.GetBaseWorkingDirectoryAsync(), "gopath") : context.ResolvePath(this.GoPath);
+            if (goroot != null)
+            {
+                info.EnvironmentVariables.Add("GOROOT", goroot);
+            }
 
             if (string.IsNullOrEmpty(goos) || string.IsNullOrEmpty(goarch))
             {
