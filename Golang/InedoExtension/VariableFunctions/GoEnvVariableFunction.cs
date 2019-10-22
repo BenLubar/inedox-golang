@@ -77,11 +77,17 @@ namespace Inedo.Extensions.Golang.VariableFunctions
             using (var process = processExecuter.CreateProcess(info))
             {
                 var output = new StringBuilder();
+                var error = new StringBuilder();
 
                 process.OutputDataReceived += (s, e) => output.AppendLine(e.Data);
+                process.ErrorDataReceived += (s, e) => error.AppendLine(e.Data);
                 process.Start();
 
                 await process.WaitAsync(cancellationToken).ConfigureAwait(false);
+                if (error.Length > 0 || process.ExitCode != 0)
+                {
+                    throw new InvalidOperationException($"go env exited with code {process.ExitCode}\n\noutput:\n{output}\n\nerror:\n{error}");
+                }
 
                 return JsonConvert.DeserializeObject<Dictionary<string, string>>(output.ToString());
             }
