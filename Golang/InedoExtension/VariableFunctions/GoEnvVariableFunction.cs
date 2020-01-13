@@ -74,7 +74,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
                 }
             }
 
-            using (var process = processExecuter.CreateProcess(info))
+            using (var process = processExecuter.CreateProcess(GoUtils.ShimEnvironment(agent, info)))
             {
                 var output = new StringBuilder();
                 var error = new StringBuilder();

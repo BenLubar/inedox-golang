@@ -81,6 +81,30 @@ namespace Inedo.Extensions.Golang
             return string.Join(" ", args.Where(arg => arg != null).Select(escape));
         }
 
+        internal static RemoteProcessStartInfo ShimEnvironment(Agent agent, RemoteProcessStartInfo info)
+        {
+            if (info.EnvironmentVariables.Count != 0 && GetAgentOperatingSystem(agent) == AgentOperatingSystem.Linux)
+            {
+                var args = new StringBuilder();
+                foreach (var env in info.EnvironmentVariables)
+                {
+                    args.Append(EscapeArgLinux(env.Key));
+                    args.Append('=');
+                    args.Append(EscapeArgLinux(env.Value));
+                    args.Append(' ');
+                }
+                args.Append(EscapeArgLinux(info.FileName));
+                args.Append(' ');
+                args.Append(info.Arguments);
+
+                info.FileName = "/usr/bin/env";
+                info.EnvironmentVariables.Clear();
+                info.Arguments = args.ToString();
+            }
+
+            return info;
+        }
+
         internal static AgentOperatingSystem GetAgentOperatingSystem(Agent agent)
         {
             return agent.TryGetService<ILinuxFileOperationsExecuter>() == null ? AgentOperatingSystem.Windows : AgentOperatingSystem.Linux;

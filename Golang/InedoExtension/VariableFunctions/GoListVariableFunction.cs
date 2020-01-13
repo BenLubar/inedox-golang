@@ -83,7 +83,7 @@ namespace Inedo.Extensions.Golang.VariableFunctions
                 }
             }
 
-            using (var process = processExecuter.CreateProcess(info))
+            using (var process = processExecuter.CreateProcess(GoUtils.ShimEnvironment(agent, info)))
             {
                 var output = new List<string>(names.Count());
                 process.OutputDataReceived += (s, e) => { if (!string.IsNullOrWhiteSpace(e.Data)) { output.Add(e.Data); } };

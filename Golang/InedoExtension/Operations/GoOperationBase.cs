@@ -122,7 +122,7 @@ namespace Inedo.Extensions.Golang.Operations
             await this.CommandLineSetupAsync(context, info).ConfigureAwait(false);
 
             this.LogInformation($"Executing command: go {info.Arguments}");
-            using (var process = processExecuter.CreateProcess(info))
+            using (var process = processExecuter.CreateProcess(GoUtils.ShimEnvironment(context.Agent, info)))
             {
                 process.OutputDataReceived += (sender, e) => this.CommandLineOutput(context, e.Data);
                 process.ErrorDataReceived += (sender, e) => this.CommandLineError(context, e.Data);
